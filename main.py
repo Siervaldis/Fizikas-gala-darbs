@@ -54,31 +54,38 @@ class CannonSimulator:
         form_frame = tk.Frame(parent, bg="#dce7f2")
         form_frame.pack(padx=15, pady=10)
 
-        tk.Label(form_frame, text="Sākuma ātrums v₀ (m/s):", font=("Arial", 11),
-                 bg="#dce7f2").grid(row=0, column=0, sticky="w", pady=6)
+        tk.Label(
+            form_frame,
+            text="Sākuma ātrums v₀ (m/s):",
+            font=("Arial", 11),
+            bg="#dce7f2"
+        ).grid(row=0, column=0, sticky="w", pady=6)
+
         self.entry_v0 = ttk.Entry(form_frame, width=18)
         self.entry_v0.grid(row=0, column=1, pady=6)
         self.entry_v0.insert(0, "20")
 
-        tk.Label(form_frame, text="Leņķis α (°):", font=("Arial", 11),
-                 bg="#dce7f2").grid(row=1, column=0, sticky="w", pady=6)
+        tk.Label(
+            form_frame,
+            text="Leņķis α (°):",
+            font=("Arial", 11),
+            bg="#dce7f2"
+        ).grid(row=1, column=0, sticky="w", pady=6)
+
         self.entry_angle = ttk.Entry(form_frame, width=18)
         self.entry_angle.grid(row=1, column=1, pady=6)
         self.entry_angle.insert(0, "45")
 
-        tk.Label(form_frame, text="Masa m (kg):", font=("Arial", 11),
-                 bg="#dce7f2").grid(row=2, column=0, sticky="w", pady=6)
+        tk.Label(
+            form_frame,
+            text="Masa m (kg):",
+            font=("Arial", 11),
+            bg="#dce7f2"
+        ).grid(row=2, column=0, sticky="w", pady=6)
+
         self.entry_mass = ttk.Entry(form_frame, width=18)
         self.entry_mass.grid(row=2, column=1, pady=6)
         self.entry_mass.insert(0, "2")
-
-        self.gravity_var = tk.BooleanVar(value=True)
-        gravity_check = ttk.Checkbutton(
-            form_frame,
-            text="Ieslēgt gravitāciju",
-            variable=self.gravity_var
-        )
-        gravity_check.grid(row=3, column=0, columnspan=2, sticky="w", pady=10)
 
         button_frame = tk.Frame(parent, bg="#dce7f2")
         button_frame.pack(pady=10)
@@ -135,16 +142,31 @@ class CannonSimulator:
     def draw_static_scene(self):
         self.canvas.delete("all")
 
-        self.canvas.create_rectangle(0, self.ground_y, self.canvas_width, self.canvas_height,
-                                     fill="#cfe8b4", outline="")
-        self.canvas.create_line(0, self.ground_y, self.canvas_width, self.ground_y, width=3, fill="#3d5a2b")
-
+        self.canvas.create_rectangle(
+            0, self.ground_y, self.canvas_width, self.canvas_height,
+            fill="#cfe8b4", outline=""
+        )
+        self.canvas.create_line(
+            0, self.ground_y, self.canvas_width, self.ground_y,
+            width=3, fill="#3d5a2b"
+        )
 
         self.canvas.create_text(35, 25, text="y", font=("Arial", 12, "bold"))
-        self.canvas.create_text(self.canvas_width - 15, self.ground_y + 20, text="x", font=("Arial", 12, "bold"))
+        self.canvas.create_text(
+            self.canvas_width - 15, self.ground_y + 20,
+            text="x", font=("Arial", 12, "bold")
+        )
 
-        self.canvas.create_line(self.origin_x, self.ground_y, self.origin_x, 20, width=2, arrow="last")
-        self.canvas.create_line(self.origin_x, self.ground_y, self.canvas_width - 20, self.ground_y, width=2, arrow="last")
+        self.canvas.create_line(
+            self.origin_x, self.ground_y,
+            self.origin_x, 20,
+            width=2, arrow="last"
+        )
+        self.canvas.create_line(
+            self.origin_x, self.ground_y,
+            self.canvas_width - 20, self.ground_y,
+            width=2, arrow="last"
+        )
 
         self.draw_cannon()
 
@@ -152,15 +174,21 @@ class CannonSimulator:
         base_x = self.origin_x
         base_y = self.ground_y
 
-        self.canvas.create_oval(base_x - 20, base_y - 20, base_x + 20, base_y + 20,
-                                fill="#444444", outline="#222222", width=2)
+        self.canvas.create_oval(
+            base_x - 20, base_y - 20,
+            base_x + 20, base_y + 20,
+            fill="#444444", outline="#222222", width=2
+        )
 
         barrel_length = 60
         angle_rad = math.radians(angle_deg)
         end_x = base_x + barrel_length * math.cos(angle_rad)
         end_y = base_y - barrel_length * math.sin(angle_rad)
 
-        self.canvas.create_line(base_x, base_y, end_x, end_y, width=12, fill="#666666", capstyle="round")
+        self.canvas.create_line(
+            base_x, base_y, end_x, end_y,
+            width=12, fill="#666666", capstyle="round"
+        )
 
     def validate_inputs(self):
         try:
@@ -176,34 +204,29 @@ class CannonSimulator:
                 raise ValueError("Leņķim jābūt no 0 līdz 90 grādiem.")
 
             return v0, angle_deg, mass
+
         except ValueError as e:
             messagebox.showerror("Ievades kļūda", str(e))
             return None
 
-    def calculate_trajectory(self, v0, angle_deg, gravity_on):
-        angle_rad = math.radians(angle_deg)
-        v0x = v0 * math.cos(angle_rad)
-        v0y = v0 * math.sin(angle_rad)
+    def calculate_trajectory(self, v0, angle_deg):
+        angle_rad = math.radians(angle_deg)      #pārvērš grādus radiānos
+        v0x = v0 * math.cos(angle_rad)          #aprēķina horizontālo komponenti
+        v0y = v0 * math.sin(angle_rad)          #aprēķina vertikālo komponenti
 
         points = []
         dt = 0.03
         t = 0.0
 
-        if gravity_on:
-            while True:
-                x = v0x * t
-                y = v0y * t - 0.5 * G * t * t
-                if y < 0:
-                    break
-                points.append((x, y))
-                t += dt
-        else:
-            max_time = 6
-            while t <= max_time:
-                x = v0x * t
-                y = v0y * t
-                points.append((x, y))
-                t += dt
+        while True:
+            x = v0x * t     #aprēķina horizontālo attālumu
+            y = v0y * t - 0.5 * G * t * t    #aprēķina augstumu
+
+            if y < 0:
+                break
+
+            points.append((x, y))
+            t += dt
 
         return points, v0x, v0y
 
@@ -228,34 +251,21 @@ class CannonSimulator:
         screen_y = self.ground_y - y * scale
         return screen_x, screen_y
 
-    def display_results(self, v0, angle_deg, mass, v0x, v0y, gravity_on):
+    def display_results(self, v0, angle_deg, mass, v0x, v0y):
         angle_rad = math.radians(angle_deg)
         energy = 0.5 * mass * v0 * v0
+        flight_time = (2 * v0 * math.sin(angle_rad)) / G
+        max_height = (v0y ** 2) / (2 * G)
+        distance = v0x * flight_time
 
-        if gravity_on:
-            flight_time = (2 * v0 * math.sin(angle_rad)) / G
-            max_height = (v0y ** 2) / (2 * G)
-            distance = v0x * flight_time
-
-            text = (
-                f"v₀x       = {v0x:.2f} m/s\n"
-                f"v₀y       = {v0y:.2f} m/s\n"
-                f"Laiks     = {flight_time:.2f} s\n"
-                f"Augstums  = {max_height:.2f} m\n"
-                f"Attālums  = {distance:.2f} m\n"
-                f"Enerģija  = {energy:.2f} J\n\n"
-                f"Gravitācija: IESLĒGTA"
-            )
-        else:
-            text = (
-                f"v₀x       = {v0x:.2f} m/s\n"
-                f"v₀y       = {v0y:.2f} m/s\n"
-                f"Laiks     = ∞\n"
-                f"Augstums  = ∞\n"
-                f"Attālums  = ∞\n"
-                f"Enerģija  = {energy:.2f} J\n\n"
-                f"Gravitācija: IZSLĒGTA"
-            )
+        text = (
+            f"v₀x       = {v0x:.2f} m/s\n"
+            f"v₀y       = {v0y:.2f} m/s\n"
+            f"Laiks     = {flight_time:.2f} s\n"
+            f"Augstums  = {max_height:.2f} m\n"
+            f"Attālums  = {distance:.2f} m\n"
+            f"Enerģija  = {energy:.2f} J\n\n"
+        )
 
         self.result_label.config(text=text)
 
@@ -268,25 +278,28 @@ class CannonSimulator:
             return
 
         v0, angle_deg, mass = values
-        gravity_on = self.gravity_var.get()
 
         self.clear_canvas(redraw_only=True)
         self.draw_cannon(angle_deg)
 
-        points, v0x, v0y = self.calculate_trajectory(v0, angle_deg, gravity_on)
-        self.display_results(v0, angle_deg, mass, v0x, v0y, gravity_on)
+        points, v0x, v0y = self.calculate_trajectory(v0, angle_deg)
+        self.display_results(v0, angle_deg, mass, v0x, v0y)
 
         scale = self.get_scale(points)
 
-        self.animation_points = [self.physics_to_screen(x, y, scale) for x, y in points]
+        self.animation_points = [
+            self.physics_to_screen(x, y, scale) for x, y in points
+        ]
         self.current_index = 0
         self.path_segments = []
         self.is_animating = True
 
         if self.animation_points:
             x, y = self.animation_points[0]
-            self.projectile = self.canvas.create_oval(x - 7, y - 7, x + 7, y + 7,
-                                                      fill="#d62828", outline="#7f0000", width=2)
+            self.projectile = self.canvas.create_oval(
+                x - 7, y - 7, x + 7, y + 7,
+                fill="#d62828", outline="#7f0000", width=2
+            )
             self.animate()
 
     def animate(self):
@@ -301,7 +314,10 @@ class CannonSimulator:
 
         if self.current_index > 0:
             prev_x, prev_y = self.animation_points[self.current_index - 1]
-            segment = self.canvas.create_line(prev_x, prev_y, x, y, fill="#ff7b00", width=2)
+            segment = self.canvas.create_line(
+                prev_x, prev_y, x, y,
+                fill="#ff7b00", width=2
+            )
             self.path_segments.append(segment)
 
         self.current_index += 1
@@ -322,11 +338,11 @@ class CannonSimulator:
 
 if __name__ == "__main__":
     root = tk.Tk()
+
     style = ttk.Style()
     style.theme_use("clam")
     style.configure("TButton", font=("Arial", 10), padding=6)
     style.configure("TEntry", padding=5)
-    style.configure("TCheckbutton", font=("Arial", 10))
 
     app = CannonSimulator(root)
     root.mainloop()
