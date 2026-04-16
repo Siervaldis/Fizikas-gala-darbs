@@ -254,7 +254,7 @@ class CannonSimulator:
     def display_results(self, v0, angle_deg, mass, v0x, v0y):
         angle_rad = math.radians(angle_deg)
         energy = 0.5 * mass * v0 * v0
-        flight_time = (2 * v0 * math.sin(angle_rad)) / G
+        flight_time = (2 * v0 * math.sin(angle_rad)) / G    #lidojuma laiks
         max_height = (v0y ** 2) / (2 * G)
         distance = v0x * flight_time
 
